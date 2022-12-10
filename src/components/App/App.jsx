@@ -6,14 +6,32 @@ import { Contacts } from 'components/ContactList/ContactList';
 import { AppContainer, Title } from './App.styled';
 import { Filter } from 'components/Filter/Filter';
 
-import initialContacts from '../initialContacts.json';
-
 export class App extends Component {
+  // static defaultProps = {
+  //   initialContacts: [],
+  // };
+
   state = {
-    contacts: initialContacts,
+    contacts: [],
     filter: '',
   };
 
+  componentDidMount() {
+    const localStorageContacts = localStorage.getItem('contacts');
+    const parsedContacts = JSON.parse(localStorageContacts);
+    // якщо користувач зайшов на сайт перший раз, то перевіряємо, чи є щось у локалі за нвшим ключем. Якщо є - то записуємо те значення, якщо немає, то ставимо дефолтні значення
+    if (localStorageContacts !== null) {
+      return this.setState({ contacts: parsedContacts });
+    }
+    // this.setState({ contacts: this.props.initialContacts });
+  }
+
+  componentDidUpdate(_, prewState) {
+    const { contacts } = this.state;
+    if (contacts !== prewState.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+    }
+  }
   handleChange = e => {
     const { name, value } = e.target;
     this.setState({ [name]: value });
