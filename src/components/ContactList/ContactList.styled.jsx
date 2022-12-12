@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const ContactsWrap = styled.div`
-  width: 400px;
+  width: 500px;
 `;
 
 export const ContactListStyled = styled.ul`
@@ -15,7 +15,7 @@ export const ContactListStyled = styled.ul`
 export const ContactItem = styled.li`
   display: flex;
   justify-content: space-between;
-  aline-items: center;
+  align-items: center;
 `;
 
 export const ContactItemText = styled.p`

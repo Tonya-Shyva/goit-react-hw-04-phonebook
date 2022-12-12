@@ -1,92 +1,94 @@
 import { nanoid } from 'nanoid';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import { Component } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ContactForm } from '../ContactForm/ContactForm';
 import { Contacts } from 'components/ContactList/ContactList';
 import { AppContainer, Title } from './App.styled';
 import { Filter } from 'components/Filter/Filter';
+import initialContacts from '../initialContacts.json';
+import { useLocalStorage } from 'hooks/useLocalStorage';
 
-export class App extends Component {
-  // static defaultProps = {
-  //   initialContacts: [],
-  // };
+export function App() {
+  const [contacts, setContacts] = useLocalStorage('contacts', initialContacts);
+  const [filter, setFilter] = useState('');
 
-  state = {
-    contacts: [],
-    filter: '',
-  };
+  const isFirstRender = useRef(true);
 
-  componentDidMount() {
-    const localStorageContacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(localStorageContacts);
-    // якщо користувач зайшов на сайт перший раз, то перевіряємо, чи є щось у локалі за нвшим ключем. Якщо є - то записуємо те значення, якщо немає, то ставимо дефолтні значення
-    if (localStorageContacts !== null) {
-      return this.setState({ contacts: parsedContacts });
-    }
-    // this.setState({ contacts: this.props.initialContacts });
-  }
+  useEffect(() => {}, []);
 
-  componentDidUpdate(_, prewState) {
-    const { contacts } = this.state;
-    if (contacts !== prewState.contacts) {
+  useEffect(() => {
+    if (isFirstRender.current) {
+      const contactsFromLocalStorage = localStorage.getItem('contacts');
+
+      if (contactsFromLocalStorage !== 'undefined') {
+        const parsedContacts = JSON.parse(contactsFromLocalStorage);
+
+        if (parsedContacts) {
+          setContacts(parsedContacts);
+        }
+      }
+      isFirstRender.current = false;
+    } else {
       localStorage.setItem('contacts', JSON.stringify(contacts));
     }
-  }
-  handleChange = e => {
-    const { name, value } = e.target;
-    this.setState({ [name]: value });
+  }, [contacts, setContacts, isFirstRender]);
+
+  const handleChange = e => {
+    // console.log(e.target);
+    const { value } = e.target;
+    setFilter(value);
   };
 
-  addNewContact = e => {
+  const addNewContact = e => {
+    // console.log(e);
+
     const id = nanoid();
     const name = e.name;
     const number = e.number;
-    const contactsLists = [...this.state.contacts];
+    const contactsLists = [...contacts];
 
     if (
       contactsLists.find(
         contact => name.toLowerCase() === contact.name.toLowerCase()
       )
     ) {
-      alert(`${name} is already in contacts.`);
+      toast.warn(`${name} is already in contacts.`);
+    } else if (contactsLists.find(contact => number === contact.number)) {
+      toast.warn(`${number} is already in contacts.`);
     } else {
-      contactsLists.push({ name, id, number });
+      contactsLists.push({ id, name, number });
     }
 
-    this.setState({ contacts: contactsLists });
+    setContacts(contactsLists);
   };
 
-  handleDelete = e => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== e),
-    }));
+  const handleDelete = e => {
+    setContacts(contacts.filter(contact => contact.id !== e));
   };
 
-  getFilteredContacts = () => {
-    const normalizedFilter = this.state.filter.toLowerCase();
-    const filterContactsList = this.state.contacts.filter(contact => {
+  const getFilteredContacts = () => {
+    const normalizedFilter = filter.toLowerCase();
+    const filterContactsList = contacts.filter(contact => {
       return contact.name.toLowerCase().includes(normalizedFilter);
     });
 
     return filterContactsList;
   };
 
-  render() {
-    return (
-      <AppContainer>
-        <Title>Phonebook</Title>
-        <ContactForm onFormSubmit={this.addNewContact}></ContactForm>
+  return (
+    <AppContainer>
+      <Title>Phonebook</Title>
+      <ContactForm onFormSubmit={addNewContact}></ContactForm>
 
-        <Title as="h2">Contacts</Title>
-        <Filter
-          filter={this.state.filter}
-          handleChange={this.handleChange}
-        ></Filter>
-        <Contacts
-          contacts={this.getFilteredContacts()}
-          handleDelete={this.handleDelete}
-        ></Contacts>
-      </AppContainer>
-    );
-  }
+      <Title as="h2">Contacts</Title>
+      <Filter filter={filter} handleChange={handleChange}></Filter>
+      <Contacts
+        contacts={getFilteredContacts()}
+        handleDelete={handleDelete}
+      ></Contacts>
+      <ToastContainer position="top-center" autoClose={4000} theme="colored" />
+    </AppContainer>
+  );
 }

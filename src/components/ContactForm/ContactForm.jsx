@@ -1,6 +1,5 @@
 import { nanoid } from 'nanoid';
 import PropTypes from 'prop-types';
-import { Component } from 'react';
 import {
   FormInputStyled,
   FormStyled,
@@ -8,65 +7,81 @@ import {
   BtnStyled,
 } from './ContactForm.styled';
 
-export class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
+import { useLocalStorage } from 'hooks/useLocalStorage';
+
+export function ContactForm({ onFormSubmit }) {
+  const [name, setName] = useLocalStorage('name', '');
+  const [number, setNumber] = useLocalStorage('number', '');
+
+  // const [name, setName] = useState('');
+  // const [number, setNumber] = useState('');
+
+  const nameInputId = nanoid();
+  const numberInputId = nanoid();
+
+  const handleChange = e => {
+    // console.log(e);
+    const { name } = e.target;
+    if (name === 'name') {
+      return setName(e.target.value);
+    } else if (name === 'number') {
+      return setNumber(e.target.value);
+    } else {
+      return;
+    }
+  };
+  // const handleChangeName = e => {
+  //   const { value } = e.target;
+  //   setName(value);
+  // };
+
+  // const handleChangeNumber = e => {
+  //   const { value } = e.target;
+  //   setNumber(value);
+  // };
+
+  const reset = () => {
+    setName('');
+    setNumber('');
   };
 
-  nameInputId = nanoid();
-  numberInputId = nanoid();
-
-  handleChange = e => {
-    console.log(e);
-    const { name, value } = e.target;
-    this.setState({ [name]: value });
-  };
-
-  handleSubmit = e => {
+  const handleFormSubmit = e => {
     e.preventDefault();
-    this.props.onFormSubmit(this.state);
-    this.reset();
+    onFormSubmit({ name: name, number: number });
+    reset();
   };
 
-  reset = () => {
-    this.setState({ name: '', number: '' });
-  };
+  return (
+    <FormStyled onSubmit={handleFormSubmit}>
+      <FormLabelStyled htmlFor={nameInputId}>Name</FormLabelStyled>
+      <FormInputStyled
+        id={nameInputId}
+        type="text"
+        name="name"
+        placeholder="Enter name"
+        pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+        value={name}
+        title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+        required
+        onChange={handleChange}
+      />
 
-  render() {
-    const { name, number } = this.state;
-    return (
-      <FormStyled onSubmit={this.handleSubmit}>
-        <FormLabelStyled htmlFor={this.nameInputId}>Name</FormLabelStyled>
-        <FormInputStyled
-          id={this.nameInputId}
-          type="text"
-          name="name"
-          placeholder="Enter name"
-          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-          value={name}
-          title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-          required
-          onChange={this.handleChange}
-        />
+      <FormLabelStyled htmlFor={numberInputId}>Number</FormLabelStyled>
+      <FormInputStyled
+        id={numberInputId}
+        type="tel"
+        name="number"
+        placeholder="Enter phone number"
+        pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+        value={number}
+        title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+        required
+        onChange={handleChange}
+      />
 
-        <FormLabelStyled htmlFor={this.numberInputId}>Number</FormLabelStyled>
-        <FormInputStyled
-          id={this.numberInputId}
-          type="tel"
-          name="number"
-          placeholder="Enter phone number"
-          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-          value={number}
-          title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-          required
-          onChange={this.handleChange}
-        />
-
-        <BtnStyled type="submit">Add contact</BtnStyled>
-      </FormStyled>
-    );
-  }
+      <BtnStyled type="submit">Add contact</BtnStyled>
+    </FormStyled>
+  );
 }
 
 ContactForm.propTypes = {
