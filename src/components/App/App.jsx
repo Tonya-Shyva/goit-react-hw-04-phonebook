@@ -13,12 +13,13 @@ import { Filter } from 'components/Filter/Filter';
 const GET_LS_CONTACTS = JSON.parse(localStorage.getItem('contacts'));
 
 export function App() {
+  // const [contacts, setContacts] = useState(GET_LS_CONTACTS ?? initialContacts);
   const [contacts, setContacts] = useState(GET_LS_CONTACTS ?? []);
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
-  });
+  }, [contacts]);
 
   const handleChange = e => {
     // console.log(e.target);
