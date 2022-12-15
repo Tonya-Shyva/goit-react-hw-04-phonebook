@@ -2,38 +2,23 @@ import { nanoid } from 'nanoid';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { ContactForm } from '../ContactForm/ContactForm';
 import { Contacts } from 'components/ContactList/ContactList';
 import { AppContainer, Title } from './App.styled';
 import { Filter } from 'components/Filter/Filter';
-import initialContacts from '../initialContacts.json';
-import { useLocalStorage } from 'hooks/useLocalStorage';
+// import initialContacts from '../initialContacts.json';
+// import { useLocalStorage } from 'hooks/useLocalStorage';
+
+const GET_LS_CONTACTS = JSON.parse(localStorage.getItem('contacts'));
 
 export function App() {
-  const [contacts, setContacts] = useLocalStorage('contacts', initialContacts);
+  const [contacts, setContacts] = useState(GET_LS_CONTACTS ?? []);
   const [filter, setFilter] = useState('');
 
-  const isFirstRender = useRef(true);
-
-  useEffect(() => {}, []);
-
   useEffect(() => {
-    if (isFirstRender.current) {
-      const contactsFromLocalStorage = localStorage.getItem('contacts');
-
-      if (contactsFromLocalStorage !== 'undefined') {
-        const parsedContacts = JSON.parse(contactsFromLocalStorage);
-
-        if (parsedContacts) {
-          setContacts(parsedContacts);
-        }
-      }
-      isFirstRender.current = false;
-    } else {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-    }
-  }, [contacts, setContacts, isFirstRender]);
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  });
 
   const handleChange = e => {
     // console.log(e.target);
@@ -74,8 +59,11 @@ export function App() {
       return contact.name.toLowerCase().includes(normalizedFilter);
     });
 
-    return filterContactsList;
+    return filterContactsList === []
+      ? toast.info('No results find')
+      : filterContactsList;
   };
+  // console.log(getFilteredContacts());
 
   return (
     <AppContainer>
@@ -84,10 +72,16 @@ export function App() {
 
       <Title as="h2">Contacts</Title>
       <Filter filter={filter} handleChange={handleChange}></Filter>
-      <Contacts
-        contacts={getFilteredContacts()}
-        handleDelete={handleDelete}
-      ></Contacts>
+
+      {getFilteredContacts().length === 0 ? (
+        <p>No contacts</p>
+      ) : (
+        <Contacts
+          contacts={getFilteredContacts()}
+          handleDelete={handleDelete}
+        ></Contacts>
+      )}
+
       <ToastContainer position="top-center" autoClose={4000} theme="colored" />
     </AppContainer>
   );

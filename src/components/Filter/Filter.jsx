@@ -11,6 +11,7 @@ export const Filter = ({ filter, handleChange }) => (
         placeholder="Enter name"
         value={filter}
         onChange={handleChange}
+        autoComplete="off"
       />
     </label>
   </FilterWrap>

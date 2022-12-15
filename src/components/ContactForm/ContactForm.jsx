@@ -7,38 +7,24 @@ import {
   BtnStyled,
 } from './ContactForm.styled';
 
-import { useLocalStorage } from 'hooks/useLocalStorage';
+import { useState } from 'react';
 
 export function ContactForm({ onFormSubmit }) {
-  const [name, setName] = useLocalStorage('name', '');
-  const [number, setNumber] = useLocalStorage('number', '');
-
-  // const [name, setName] = useState('');
-  // const [number, setNumber] = useState('');
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
   const nameInputId = nanoid();
   const numberInputId = nanoid();
 
-  const handleChange = e => {
-    // console.log(e);
-    const { name } = e.target;
-    if (name === 'name') {
-      return setName(e.target.value);
-    } else if (name === 'number') {
-      return setNumber(e.target.value);
-    } else {
-      return;
-    }
+  const handleChangeName = e => {
+    const { value } = e.target;
+    setName(value);
   };
-  // const handleChangeName = e => {
-  //   const { value } = e.target;
-  //   setName(value);
-  // };
 
-  // const handleChangeNumber = e => {
-  //   const { value } = e.target;
-  //   setNumber(value);
-  // };
+  const handleChangeNumber = e => {
+    const { value } = e.target;
+    setNumber(value);
+  };
 
   const reset = () => {
     setName('');
@@ -63,7 +49,7 @@ export function ContactForm({ onFormSubmit }) {
         value={name}
         title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
         required
-        onChange={handleChange}
+        onChange={handleChangeName}
       />
 
       <FormLabelStyled htmlFor={numberInputId}>Number</FormLabelStyled>
@@ -76,7 +62,7 @@ export function ContactForm({ onFormSubmit }) {
         value={number}
         title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
         required
-        onChange={handleChange}
+        onChange={handleChangeNumber}
       />
 
       <BtnStyled type="submit">Add contact</BtnStyled>
