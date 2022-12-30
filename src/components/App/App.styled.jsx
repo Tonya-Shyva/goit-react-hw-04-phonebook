@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const AppContainer = styled.div`
   display: block;
-  fontsize: 40px;
+  font-size: 40px;
   color: '#010101';
   margin: 30px;
 `;
